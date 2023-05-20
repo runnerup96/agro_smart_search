@@ -58,7 +58,7 @@ def initialize_finder(root_path: str = "") -> Finder:
 
 
 
-ROOT_PATH = "/app/argo_smart_search/webapp/data/"
+ROOT_PATH = "/app/argo_smart_search/webapp/"
 # Load input data
 input_data = load_json_data(ROOT_PATH + "data/featureset.json")
 
