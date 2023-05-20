@@ -1,5 +1,4 @@
 import random
-import json
 
 
 def sample_object(entity_features_dict):
