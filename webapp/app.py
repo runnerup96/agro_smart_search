@@ -4,15 +4,16 @@ import json
 from finder_class import Finder, sample_object
 
 
-with open("data/featureset.json", "rb") as file:
+with open("/app/argo_smart_search/webapp/data/featureset.json", "rb") as file:
     input_data = json.load(file)
 
-display_dict = json.load(open('data/display_dict.json', 'r'))
-feature_dict = json.load(open('data/full_features_dict.json', 'r'))
+display_dict = json.load(open('/app/argo_smart_search/webapp/data/display_dict.json', 'r'))
+feature_dict = json.load(open('/app/argo_smart_search/webapp/data/full_features_dict.json', 'r'))
 finder_instance = Finder(feature_dict, display_dict)
 st.header("Поисковик по лекарственным растениям")
-st.subheader("👨‍🌾 Сформируйте запрос")
 st.markdown("Преставленное решение разработано командой cls_token, в рамках кейса **ООО «СОЛЮШН»** хакатона \"Цифровой прорыв. Сезон: ИИ\"")
+st.subheader("👨‍🌾 Сформируйте запрос")
+
 
 options = st.multiselect(
     "Расположение (GEO)",
