@@ -3,14 +3,13 @@ import streamlit as st
 import json
 from finder_class import Finder
 
-#/app/argo_smart_search/webapp/
-input_data = json.load(open("data/featureset.json", "rb"))
-display_dict = json.load(open('data/display_dict.json', 'r'))
-feature_dict = json.load(open('data/full_features_dict.json', 'r'))
-popularity_dict = json.load(open('data/popularity_dict.json', 'r'))
+
+input_data = json.load(open("/app/argo_smart_search/webapp/data/featureset.json", "rb"))
+display_dict = json.load(open('/app/argo_smart_search/webapp/data/display_dict.json', 'r'))
+feature_dict = json.load(open('/app/argo_smart_search/webapp/data/full_features_dict.json', 'r'))
+popularity_dict = json.load(open('/app/argo_smart_search/webapp/data/popularity_dict.json', 'r'))
 finder_instance = Finder(feature_dict, display_dict, popularity_dict)
-# st.header("Поисковик по лекарственным растениям")
-original_title = '<h2 style="font-family: Ubuntu-Regular, arial, sans-serif; color:#165A02;">Agrosearch: поисковик по лекарственным растениям</h2>'
+original_title = '<h2 style="color:#165A02;">Agrosearch: поисковик по лекарственным растениям</h2>'
 st.markdown(original_title, unsafe_allow_html=True)
 st.markdown("Преставленное решение разработано командой cls_token, в рамках кейса **ООО «СОЛЮШН»** хакатона \"Цифровой прорыв. Сезон: ИИ\"")
 st.subheader("👨‍🌾 Сформируйте запрос")
