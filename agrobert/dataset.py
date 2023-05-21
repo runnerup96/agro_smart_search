@@ -61,6 +61,8 @@ def train_test_split(data: pd.DataFrame, train_frac=0.85):
         test_texts.extend(texts[n_train:])
         train_labels += [label] * n_train
         test_labels += [label] * n_test
+
         train_data = {"description": train_texts, "target": train_labels}
         test_data = {"description": test_texts, "target": test_labels}
+
     return pd.DataFrame(train_data), pd.DataFrame(test_data)

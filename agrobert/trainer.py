@@ -1,3 +1,4 @@
+
 import torch
 from model import TinyRUBertForClassification
 from torch.nn import CrossEntropyLoss
@@ -24,13 +25,13 @@ class Trainer:
         self.model = model.to(self.device)
         self.optimizer = self.opt_fn(model)
         self.scheduler = StepLR(self.optimizer, step_size=2, gamma=0.99)
-
         self.history = {"train_loss": [], "val_loss": [], "val_acc": []}
-
+        
         for epoch in range(self.n_epochs):
             print(f"Epoch {epoch + 1}/{self.n_epochs}")
             train_info = self.train_epoch(train_dataloader, val_dataloader)
             val_info = self.val_epoch(val_dataloader)
+
             self.history["train_loss"].extend(train_info["loss"])
             self.history["val_loss"].extend([val_info["loss"]])
             self.history["val_acc"].extend([val_info["acc"]])
@@ -44,6 +45,7 @@ class Trainer:
             train_dataloader = tqdm(train_dataloader)
         for norb, batch in enumerate(train_dataloader):
             self.model.train()
+
             ids = batch["ids"].to(self.device, dtype=torch.long)
             mask = batch["mask"].to(self.device, dtype=torch.long)
             targets = batch["targets"].to(self.device, dtype=torch.long)
@@ -61,6 +63,7 @@ class Trainer:
             losses.append(loss_val)
             if norb % 1 == 0:
                 val_info = self.val_epoch(val_dataloader)
+
                 print(norb, " ", val_info["acc"])
 
         return {"loss": losses}
@@ -76,6 +79,7 @@ class Trainer:
                 ids = batch["ids"].to(self.device, dtype=torch.long)
                 mask = batch["mask"].to(self.device, dtype=torch.long)
                 targets = batch["targets"].to(self.device, dtype=torch.long)
+
                 outputs = self.model(ids, mask)
                 all_logits.append(outputs)
                 all_labels.append(targets)
@@ -87,6 +91,7 @@ class Trainer:
         if self.verbose:
             val_dataloader.set_description(f"Loss={loss:.3}; Acc:{acc:.3}")
         return {"acc": acc, "loss": loss}
+
 
     def predict(self, test_dataloader):
         if not self.model:
@@ -120,6 +125,7 @@ class Trainer:
             if key not in ckpt:
                 raise RuntimeError(f"Missing key {key} in checkpoint")
         new_model = TinyRUBertForClassification(ckpt["model_name"], ckpt["config"])
+
         new_model.load_state_dict(ckpt["model_state_dict"])
         new_trainer = cls(ckpt["trainer_config"])
         new_trainer.model = new_model

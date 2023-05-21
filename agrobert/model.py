@@ -1,8 +1,10 @@
+from typing import Dict
 import torch
 from transformers import AutoModel
 
 
 class TinyRUBertForClassification(torch.nn.Module):
+
     def __init__(self, distil_bert_path: str, config: dict):
         super(TinyRUBertForClassification, self).__init__()
         self.model_name = distil_bert_path
@@ -20,6 +22,7 @@ class TinyRUBertForClassification(torch.nn.Module):
         output = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         #         hidden_state = output[0]
         #         hidden_state = hidden_state[:, 0]
+
         hidden_state = self.pre_classifier(output.last_hidden_state[:, 0, :])
         hidden_state = self.bn(hidden_state)
         hidden_state = torch.nn.ReLU()(hidden_state)
