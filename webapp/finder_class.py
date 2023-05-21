@@ -1,5 +1,4 @@
 import random
-import json
 
 
 def sample_object(entity_features_dict):
@@ -29,14 +28,14 @@ def sample_object(entity_features_dict):
 
 
 class Finder:
-    def __init__(self, plant2feature_dict, plant2display_data, top_n=5):
+    def __init__(self, plant2feature_dict, plant2display_data, popularity_dict, top_n=5):
         self.plant2feature_dict = plant2feature_dict
         self.plant2display_data = plant2display_data
+        self.popularity_dict = popularity_dict
         self.top_n = top_n
-        
 
     def search(self, attr_dict):
-        
+
         scored_entities_list = []
         for entity in self.plant2feature_dict:
             entity_score, non_zero_attrs = 0, 0
@@ -49,35 +48,25 @@ class Finder:
                     intersect_score = len(intersect) / len(input_attr_vals)
                     entity_score += intersect_score
                     non_zero_attrs += 1
-            entity_score = entity_score / non_zero_attrs
+            entity_score = entity_score / non_zero_attrs + self.popularity_dict[entity] / 5
             scored_entities_list.append([entity, entity_score])
-        
+
         sorted_scored_entities_list = sorted(scored_entities_list, key=lambda x: x[1], reverse=True)[:self.top_n]
         search_responce = []
         for name, score in sorted_scored_entities_list:
             entity_original_name = self.plant2display_data[name]['original_name']
             entity_definition = self.plant2display_data[name]['definition']
             entity_attributes = self.plant2feature_dict[name]
-            
+
             result_dict = dict()
             result_dict['original_name'] = entity_original_name
             result_dict['entity_definition'] = entity_definition
-            result_dict['entity_attributes'] = {key: entity_attributes[key][:5] for key in entity_attributes}
-            
+            result_dict['entity_attributes'] = entity_attributes
+
             result_dict['search_score'] = score
             result_dict['entity_name'] = name
-            
+            result_dict['popularity'] = self.popularity_dict[name]
+
             search_responce.append(result_dict)
-        
+
         return search_responce
-    
-if __name__ == "__main__":
-    display_dict = json.load(open('data/display_dict.json', 'r'))
-    feature_dict = json.load(open('data/full_features_dict.json', 'r'))
-    finder_instance = Finder(feature_dict, display_dict)
-    entity, entity_attr = sample_object(feature_dict)
-    print("Expected entity: ", entity)
-    print("Input attributes: ", entity_attr)
-    print('Result')
-    result = finder_instance.search(entity_attr)
-    print(result)
