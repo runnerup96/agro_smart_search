@@ -1,3 +1,4 @@
+
 import json
 
 import pandas as pd
@@ -6,7 +7,6 @@ from finder_class import Finder
 from PIL import Image
 
 st.set_page_config(page_title="Agrosearch", page_icon="👨‍🌾")
-
 
 def load_json_data(file_path: str) -> dict:
     """Load JSON data from a file."""
