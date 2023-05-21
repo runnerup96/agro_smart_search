@@ -1,0 +1,7 @@
+streamlit
+natasha
+pdfminer
+fuzzywuzzy
+transformers
+dataset
+scikit-learn
