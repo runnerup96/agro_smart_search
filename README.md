@@ -1,1 +1,9 @@
-# argo_smart_search
+
+
+# Agrosearch
+Решение команды **cls_token** по кейсу от **Плант Бокс**
+
+По папкам
+1) `webapp` - сервис поиска на streamlit
+2) `data_preparation` - код парсинга данных и объединение
+3) `agrobert` - код для обучения модели AgroBERT для классификации текстов

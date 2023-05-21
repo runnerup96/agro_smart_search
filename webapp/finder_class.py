@@ -1,72 +1,113 @@
 import random
 
+from typing import Dict, List, Tuple
 
-def sample_object(entity_features_dict):
+
+def sample_object(entity_features_dict: Dict) -> Tuple[str, Dict]:
+    """
+    Function to sample an entity from the given dictionary and return a subset of its attributes.
+
+    Args:
+        entity_features_dict (Dict): A dictionary containing entity names as keys and another dictionary of their attributes as values.
+
+    Returns:
+        Tuple[str, Dict]: A tuple containing a randomly selected entity name and a dictionary of selected attributes.
+    """
     entity = random.choice(list(entity_features_dict.keys()))
-    
+
     # select filled attributes
-    used_attr_names = []
-    for attr in entity_features_dict[entity]:
-        if len(entity_features_dict[entity][attr]) > 0:
-            used_attr_names.append(attr)
-            
+    used_attr_names = [
+        attr
+        for attr in entity_features_dict[entity]
+        if entity_features_dict[entity][attr]
+    ]
+
     random_attrs_num = random.randint(1, len(used_attr_names))
     random_attrs = random.sample(used_attr_names, random_attrs_num)
-    
-    result_dict = dict()
-    for attr in entity_features_dict[entity]:
-        if attr in random_attrs:
-            search_number = len(entity_features_dict[entity][attr]) if len(entity_features_dict[entity][attr]) < 5 else 5
-            val_num = random.randint(1, search_number)
-            rand_values = random.sample(entity_features_dict[entity][attr], val_num)
-            result_dict[attr] = rand_values
-        else:
-            result_dict[attr] = []
 
-    
+    result_dict = {
+        attr: (
+            random.sample(
+                entity_features_dict[entity][attr],
+                val_num := random.randint(
+                    1, min(5, len(entity_features_dict[entity][attr]))
+                ),
+            )
+            if attr in random_attrs
+            else []
+        )
+        for attr in entity_features_dict[entity]
+    }
     return entity, result_dict
 
 
 class Finder:
-    def __init__(self, plant2feature_dict, plant2display_data, popularity_dict, top_n=5):
+    """
+    Class to encapsulate the finding algorithm.
+    """
+
+    def __init__(
+        self,
+        plant2feature_dict: Dict,
+        plant2display_data: Dict,
+        popularity_dict: Dict,
+        top_n: int = 5,
+    ):
+        """
+        Initializer for Finder.
+
+        Args:
+            plant2feature_dict (Dict): A dictionary mapping plant names to their features.
+            plant2display_data (Dict): A dictionary mapping plant names to their display data.
+            popularity_dict (Dict): A dictionary mapping plant names to their popularity scores.
+            top_n (int): The number of top results to return. Default is 5.
+        """
         self.plant2feature_dict = plant2feature_dict
         self.plant2display_data = plant2display_data
         self.popularity_dict = popularity_dict
         self.top_n = top_n
 
-    def search(self, attr_dict):
+    def search(self, attr_dict: Dict) -> List[Dict]:
+        """
+        Method to perform the search operation based on attribute dictionary.
 
-        scored_entities_list = []
-        for entity in self.plant2feature_dict:
-            entity_score, non_zero_attrs = 0, 0
-            for key in attr_dict:
-                if len(attr_dict[key]) > 0:
-                    input_attr_vals = set(attr_dict[key])
-                    doc_attr_vals = set(self.plant2feature_dict[entity][key])
+        Args:
+            attr_dict (Dict): A dictionary containing attributes to be searched for.
 
-                    intersect = doc_attr_vals.intersection(input_attr_vals)
-                    intersect_score = len(intersect) / len(input_attr_vals)
-                    entity_score += intersect_score
-                    non_zero_attrs += 1
-            entity_score = entity_score / non_zero_attrs + self.popularity_dict[entity] / 5
-            scored_entities_list.append([entity, entity_score])
+        Returns:
+            List[Dict]: A list of dictionaries each representing a plant entity that matches the search.
+        """
+        scored_entities_list = [
+            [
+                entity,
+                sum(
+                    len(
+                        set(self.plant2feature_dict[entity][key]).intersection(
+                            set(attr_dict[key])
+                        )
+                    )
+                    / len(set(attr_dict[key]))
+                    for key in attr_dict
+                    if attr_dict[key]
+                )
+                / sum(bool(attr_dict[key]) for key in attr_dict)
+                + self.popularity_dict[entity] / 5,
+            ]
+            for entity in self.plant2feature_dict
+        ]
 
-        sorted_scored_entities_list = sorted(scored_entities_list, key=lambda x: x[1], reverse=True)[:self.top_n]
-        search_responce = []
-        for name, score in sorted_scored_entities_list:
-            entity_original_name = self.plant2display_data[name]['original_name']
-            entity_definition = self.plant2display_data[name]['definition']
-            entity_attributes = self.plant2feature_dict[name]
+        sorted_scored_entities_list = sorted(
+            scored_entities_list, key=lambda x: x[1], reverse=True
+        )[: self.top_n]
 
-            result_dict = dict()
-            result_dict['original_name'] = entity_original_name
-            result_dict['entity_definition'] = entity_definition
-            result_dict['entity_attributes'] = entity_attributes
-
-            result_dict['search_score'] = score
-            result_dict['entity_name'] = name
-            result_dict['popularity'] = self.popularity_dict[name]
-
-            search_responce.append(result_dict)
-
-        return search_responce
+        return [
+            {
+                "original_name": self.plant2display_data[name]["original_name"],
+                "entity_definition": self.plant2display_data[name]["definition"],
+                "entity_attributes": self.plant2feature_dict[name],
+                "search_score": score,
+                "entity_name": name,
+                "popularity": self.popularity_dict[name],
+            }
+            for name, score in sorted_scored_entities_list
+        ]

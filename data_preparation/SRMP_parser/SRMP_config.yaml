@@ -1,0 +1,8 @@
+root_data_path: "../raw_data/SRMP_data"
+file_names: ["1.xls","2.xls", "4.xls"]
+col_mapping: ["E,F,K,L", "E,F,K,L", "E,F,K,L"]
+header_row: 5
+col_names: ["completion_data", "cancellation_date", "market_name", "chemical_name"]
+
+
+       
