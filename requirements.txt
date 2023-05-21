@@ -1,5 +1,6 @@
 streamlit
 natasha
+torch~=2.0.0
 pdfminer
 fuzzywuzzy
 transformers
